@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Register</title> 
+{% endblock %}
+
+
+{% block body %}
+    {% include '_messages.html' %}
+
+    <form action="/register" method="POST" class="form-signin" enctype="multipart/form-data">
+        <h1 class="h3 mb-3 font-weight-normal text-center">Please sign in</h1>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <input id="username" name='username' class="form-control" placeholder="Login" required autofocus>
+                    <input type="email" id="email" name='email' class="form-control" placeholder="e-mail" required autofocus>
+                    <input type="password" id="password" name='password' class="form-control" placeholder="Password" required minlength="5">
+                    <input type="text" id="firstname" name='firstname' class="form-control" placeholder="Your first name" autofocus>
+                    <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Your last name" autofocus>
+
+                </div>
+                <div class="col-md-6">
+                    <input type="text" id="city" name='city' class="form-control" placeholder="Your city" autofocus>
+                    <input type="date" id="birthdate" name='birthdate' class="form-control" placeholder="Your date of birth" autofocus>
+                    <select id="gender" name='gender' class="form-control">
+                        <option value="Male" selected="selected" disabled autofocus>Choose your gender:</option>
+                        <option value="Male" selected="selected">Male</option>
+                        <option value="Female">Female</option>
+                        <option value="Not decided yet">Not decided yet</option>
+                    </select>
+                    <label for="userpic" class="">Select your userpic</label>
+                    <input type="file" id="userpic" name='userpic' class="form-control-sm">
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-info btn-block mt-5" type="submit" style="width: 100%">Register</button>
+      </form>
+        <p class="mt-5 mb-3 text-muted">&copy Evgeny Stepanchenko, 2021</p>
+{% endblock %}

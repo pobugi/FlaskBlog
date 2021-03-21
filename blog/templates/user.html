@@ -1,0 +1,76 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>User page(wall)</title> 
+{% endblock %}
+
+
+{% block body %}
+
+    {% include '_messages.html' %}
+    <div class="container">
+        <h1 class="text-center">{{ post_host.username }}'s wall</h1>
+        {% if current_user in d[post_host.id] %}
+            <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Unfollow {{ post_host.username }}</a></div>
+        {% else %}
+            <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Follow {{ post_host.username }}</a></div>
+        {% endif %}
+
+        {% if current_user.id == post_host.id %}
+            <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" data-text-show="Hide" data-text-hide="Write a new post">
+                Write a new post
+            </a>
+        {% endif %}
+    </div>
+    <div id="mydiv" style="display:none;">
+        <div class="container">
+            <form action='/user/{{post_host.id}}' method='POST' class="form-signin">
+                {% include '_messages.html' %}
+                <input id="post_title" name='post_title' class="form-control" placeholder="Your post title" required autofocus>
+                <textarea class="form-control rounded-0" name='post_content' id="post_content" rows="3" placeholder="Put some clever thoughts here" required></textarea>
+                <button class="btn btn-lg btn-info btn-block" type="submit">Submit</button>
+            </form>
+        </div>
+    </div>
+
+    {% for post in all_posts %}
+    <div class="container">
+        <h2 class="subheading">{{ post.post_title }}</h1>
+        <span class="meta">
+            Posted by {{post_host.username}} on {{ post.post_date_added.strftime('%B %d, %Y') }}:
+        </span>
+        <div class="container">
+            {{ post.post_content }}
+        </div>
+        <div class="row">
+            <div class="col-sm-5"></div>
+            <div class="col-sm-2 text-right"><a href="{{url_for('like_post', id=post.id)}}">Like this post({{post.post_likes_qty}})</div>
+            <div class="col-sm-2 text-right"><a href="{{url_for('discuss_post', id=post.id)}}">Discuss this post</a></div>
+            {% if current_user in d[post.post_author_id] %}
+                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post.post_author_username)}}">Unfollow {{ post_host.username }}</a></div>
+            {% else %}
+                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post.post_author_username)}}">Follow {{ post_host.username }}</a></div>
+            {% endif %}
+            <p>PIZDA</p>
+        </div>    
+    </div>
+    <hr>
+    {% endfor %}
+
+    <script>
+        function viewdiv(id) {
+            var el = document.getElementById(id);
+            var link = document.getElementById('toggleLink');
+            if (el.style.display == "block") {
+                el.style.display = "none";
+                link.innerText = link.getAttribute('data-text-hide');
+            } else {
+                el.style.display = "block";
+                link.innerText = link.getAttribute('data-text-show');
+            }
+        }
+
+    </script>
+
+
+{% endblock %}

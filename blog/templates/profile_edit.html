@@ -1,0 +1,53 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Edit profile</title> 
+{% endblock %}
+
+
+{% block body %}
+    {% include '_messages.html' %}
+
+    <form action='{{ url_for('profile_edit', username=user_to_edit.username) }}' method='POST' class="form-signin" enctype="multipart/form-data">
+        <h3 class="h3 mb-3 font-weight-normal text-center">Update the information about you</h3>
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <input id="username" name='username' class="form-control" value="{{user_to_edit.username}}" required autofocus>
+                    <input type="email" id="email" name='email' class="form-control" value="{{user_to_edit.email}}" required autofocus>
+                    <input type="password" id="password" name='password' class="form-control" placeholder="Input your password to submit" required minlength="5">
+
+                    {% if user_to_edit.firstname|length < 1 %}
+                        <input type="text" id="firstname" name='firstname' class="form-control" placeholder="Your first name" autofocus>
+                    {% else %}
+                        <input type="text" id="firstname" name='firstname' class="form-control" value="{{user_to_edit.firstname}}" autofocus>
+                    {% endif %}
+                    {% if user_to_edit.lastname|length < 1 %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Your last name" autofocus>
+                    {% else %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" value="{{user_to_edit.lastname}}" autofocus>
+                    {% endif %}
+                    {% if user_to_edit.city|length < 1 %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Your city" autofocus>
+                    {% else %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" value="{{user_to_edit.city}}" autofocus>
+                    {% endif %}
+
+                    <input type="date" id="birthdate" name='birthdate' class="form-control" value="{{user_to_edit.birthdate}}" autofocus>
+                </div>
+                <div class="col-md-6">
+                    <div class="col-md-4">
+                        <img src="{{ url_for('static', filename='images/userpics/' + user_to_edit.userpic) }}" width="100%" height="auto" alt="{{ user_to_edit.userpic }} userpic">
+                        <input type="file" id="userpic" name='userpic' class="form-control-sm mt-3">
+                        <button class="btn btn-danger" name="deletepic">Delete userpic</button>
+                    </div>
+                    <label for="userpic" class="">Select your userpic</label>
+                    <input type="file" id="userpic" name='userpic' class="form-control-sm">
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-info btn-block mt-5" type="submit" style="width: 100%">Submit</button>
+      </form>
+        <p class="mt-5 mb-3 text-muted">&copy Evgeny Stepanchenko, 2021</p>
+{% endblock %}

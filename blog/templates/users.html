@@ -1,0 +1,69 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Home</title> 
+{% endblock %}
+
+
+{% block body %}
+
+    {% include '_messages.html' %}
+
+    <h3>Hello, {{ current_user.username }}</h3>
+    <h3>FlaskBlog Users:</h3>
+        <table class="table table-sm table-condensed">
+            <thead class="thead-light"> 
+                <th>#</th>
+                <th>Userpic</th>
+                <th>Username</th>
+                <th>Link</th>
+                <th>Followers</th>
+                <th>Is online</th>
+                <th>Last seen</th>
+            </thead>
+            {% for user in all_users %}
+            
+            <tbody>
+                <td>{{ loop.index }}</td>
+                <td><img src="{{url_for('static', filename='images/userpics/' + user.userpic)}}" width="auto" height="50px"></td>
+                <td>{{ user.username }}</td>
+                <td><a href="{{ url_for('user', id=user.id) }}">His wall</a></td>
+                {% if current_user in flwrs_dict[user.id] %}
+                    <td><a href="{{ url_for('follow_user', username=user.username) }}">Unfollow</a></td> 
+                {% else %}
+                    <td><a href="{{ url_for('follow_user', username=user.username) }}">Follow</a></td>
+                {% endif %}
+                <td>is online?</td>
+                <td>
+                    <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" data-text-show="Спрятать блок" data-text-hide="Показать блок">Показать блок</a>
+                    <div id="mydiv" style="display:none;">
+                        <div class="container">
+                            qqefnweifunwegweg
+                            wegwergwegt
+                        </div>
+                    </div>
+                   
+                </td>
+            </tbody>
+            {% endfor %}
+
+        </table>
+
+        <script>
+            function viewdiv(id) {
+                var el = document.getElementById(id);
+                var link = document.getElementById('toggleLink');
+                if (el.style.display == "block") {
+                    el.style.display = "none";
+                    link.innerText = link.getAttribute('data-text-hide');
+                } else {
+                    el.style.display = "block";
+                    link.innerText = link.getAttribute('data-text-show');
+                }
+            }
+
+        </script>
+
+
+
+{% endblock %}
