@@ -214,7 +214,7 @@ def follow_user(username):
     db.session.commit()
 
 
-    return redirect(url_for('user', id=user_to_follow.id))
+    return redirect(url_for('user', username=user_to_follow.username))
 
 
 

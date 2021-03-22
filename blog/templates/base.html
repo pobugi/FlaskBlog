@@ -49,8 +49,8 @@
                     </a>
 
                     <div class="dropdown-menu" aria-labelledby="navbarDropdown">
-                        <a class="dropdown-item" href="">Your wall</a>
-                        <a class="dropdown-item" href="">Edit your profile</a>
+                        <a class="dropdown-item" href="{{ url_for('user', username=current_user.username) }}">Your wall</a>
+                        <a class="dropdown-item" href="{{ url_for('profile_edit', username=current_user.username) }}">Edit your profile</a>
                         <a class="dropdown-item" href="{{ url_for('logout') }}">Log out</a>
                         <div class="dropdown-divider"></div>
                         <a class="dropdown-item" href="#">Something else here</a>

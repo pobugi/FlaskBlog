@@ -33,7 +33,7 @@ class User(UserMixin, db.Model):
 
     posts = db.relationship('Post', backref='user', lazy='dynamic')
     likes = db.relationship('Like', backref='user', lazy='dynamic')
-    comments = db.relationship('Comment', backref='user', lazy='dynamic')
+    # comments = db.relationship('Comment', backref='user', lazy='dynamic')
     # followers = db.relationship('Follower', backref='user', lazy='dynamic')
     # followers = db.relationship('User', secondary=followers, backref=db.backref('followers_of_user', lazy=True))
 

@@ -27,7 +27,7 @@
                 <td>{{ loop.index }}</td>
                 <td><img src="{{url_for('static', filename='images/userpics/' + user.userpic)}}" width="auto" height="50px"></td>
                 <td>{{ user.username }}</td>
-                <td><a href="{{ url_for('user', id=user.id) }}">His wall</a></td>
+                <td><a href="{{ url_for('user', username=user.username) }}">His wall</a></td>
                 {% if current_user in flwrs_dict[user.id] %}
                     <td><a href="{{ url_for('follow_user', username=user.username) }}">Unfollow</a></td> 
                 {% else %}

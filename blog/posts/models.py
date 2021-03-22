@@ -43,10 +43,3 @@ class Like(db.Model):
     liked_post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
 
 
-class Comment(db.Model):
-
-    __tablename__ = 'comment'
-    id = db.Column(db.Integer, primary_key=True)
-    comment_post_id = db.Column(db.Integer, db.ForeignKey('post.id'))
-    comment_author_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-    comment_content = db.Column(db.String(500), nullable=False)

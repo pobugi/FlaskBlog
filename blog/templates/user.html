@@ -10,11 +10,34 @@
     {% include '_messages.html' %}
     <div class="container">
         <h1 class="text-center">{{ post_host.username }}'s wall</h1>
-        {% if current_user in d[post_host.id] %}
-            <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Unfollow {{ post_host.username }}</a></div>
-        {% else %}
-            <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Follow {{ post_host.username }}</a></div>
-        {% endif %}
+
+        <div class="row">
+
+            <div class="col-sm-10"></div>
+
+            {% if current_user in d[post_host.id] %}
+                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Unfollow {{ post_host.username }}</a></div>
+            {% else %}
+                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Follow {{ post_host.username }}</a></div>
+            {% endif %}
+
+        </div>
+
+        <div class="row">
+
+            <div class="col-sm-10"></div>
+            <div class="col-sm-2 text-right">
+                <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('show_followers');" data-text-show="Hide" data-text-hide="Show followers">
+                    All his followers
+                </a>
+                <div class="col-sm-2 text-right" id="show_followers" style="display:none;">
+                    {% for follower in all_followers %}
+                        <h1>{{ follower.username }}</h1>
+                    {% endfor %}
+                </div>
+    
+            </div>
+        </div>
 
         {% if current_user.id == post_host.id %}
             <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" data-text-show="Hide" data-text-hide="Write a new post">
@@ -51,7 +74,6 @@
             {% else %}
                 <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post.post_author_username)}}">Follow {{ post_host.username }}</a></div>
             {% endif %}
-            <p>PIZDA</p>
         </div>    
     </div>
     <hr>

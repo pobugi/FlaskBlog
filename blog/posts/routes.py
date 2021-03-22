@@ -8,10 +8,10 @@ from flask import redirect, render_template, request, flash, url_for
 from flask_login import login_required, current_user
 from blog.users.routes import all_followers_of_user
 
-@app.route('/user/<int:id>', methods=['POST', 'GET'])
+@app.route('/users/<username>/wall', methods=['POST', 'GET'])
 @login_required
-def user(id):
-    post_host = User.query.get(id)
+def user(username):
+    post_host = User.query.filter_by(username=username).first()
     # all_posts = Post.query.join(posts_users, (Post.id == posts_users.c.post_id)).filter_by(post_author_id=id).all()
     
     all_users = User.query.all()
@@ -47,11 +47,14 @@ def user(id):
         return redirect(url_for('user', id=id))
 
     all_posts = Post.query.filter_by(post_author_id=post_host.id).all()
+    all_followers = all_followers_of_user(post_host.id)
+    print(all_followers)
 
     return render_template('user.html', post_host=post_host, 
                                         all_posts=all_posts,
                                         d=d,
-                                        all_users=all_users)
+                                        all_users=all_users,
+                                        all_followers=all_followers)
 
 
 @app.route('/feed')
@@ -97,7 +100,7 @@ def like_post(id):
     print(post_to_be_liked)
     print('L=',len(users_already_liked_post))
     print(current_user in users_already_liked_post)
-    return redirect(url_for('user', id=post_to_be_liked.post_author_id))
+    return redirect(url_for('discuss_post', id=post_to_be_liked.post_author_id))
     # liked_post_host_id = post_to_be_liked.post_author_id
 
     # users_already_liked_post = User.query.join(postlikes, (User.id == postlikes.c.liked_user_id)).filter_by(liked_post_id=id).all()
