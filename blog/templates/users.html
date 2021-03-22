@@ -9,7 +9,6 @@
 
     {% include '_messages.html' %}
 
-    <h3>Hello, {{ current_user.username }}</h3>
     <h3>FlaskBlog Users:</h3>
         <table class="table table-sm table-condensed">
             <thead class="thead-light"> 
@@ -26,14 +25,17 @@
             <tbody>
                 <td>{{ loop.index }}</td>
                 <td><img src="{{url_for('static', filename='images/userpics/' + user.userpic)}}" width="auto" height="50px"></td>
-                <td>{{ user.username }}</td>
-                <td><a href="{{ url_for('user', username=user.username) }}">His wall</a></td>
+                <td><a href="{{ url_for('user', username=user.username) }}">{{ user.username }}</a></td>
                 {% if current_user in flwrs_dict[user.id] %}
                     <td><a href="{{ url_for('follow_user', username=user.username) }}">Unfollow</a></td> 
                 {% else %}
                     <td><a href="{{ url_for('follow_user', username=user.username) }}">Follow</a></td>
                 {% endif %}
-                <td>is online?</td>
+                {% if user == current_user %}
+                    <td style="color: Yellow">Online</td>
+                {% else %}
+                    <td>Offline</td>
+                {% endif %}
                 <td>
                     <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" data-text-show="Спрятать блок" data-text-hide="Показать блок">Показать блок</a>
                     <div id="mydiv" style="display:none;">
@@ -44,6 +46,7 @@
                     </div>
                    
                 </td>
+                <td>{{ all_followers_of_user(user.id)|length }}</td>
             </tbody>
             {% endfor %}
 

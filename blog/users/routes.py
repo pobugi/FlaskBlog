@@ -23,8 +23,12 @@ s = URLSafeTimedSerializer(Config.SECRET_KEY)
 #         return redirect(url_for('users'))
 #     return redirect(url_for('login'))
 
-
-
+@app.route('/send_confirmation_email/<email_address>')
+@login_required
+def send_confirmation_email(email_address):
+    token = generate_confirmation_token(email_address)
+    email_sender.send_confirmation_email(email=email_address, token=token)
+    return redirect(request.referrer)
 
 @app.route('/confirm_email/<token>')
 @login_required
@@ -78,8 +82,9 @@ def register():
         db.session.commit()
         login_user(new_user)
 
-        token = generate_confirmation_token(new_user_email)
-        email_sender.send_confirmation_email(email=new_user_email, token=token)
+        send_confirmation_email(new_user_email)
+        # token = generate_confirmation_token(new_user_email)
+        # email_sender.send_confirmation_email(email=new_user_email, token=token)
 
         flash('Welcome, {}! You\'re registered now. Please, confirm your email (we\'ve just sent you a link)'.format(new_user.username), 'success')
         return redirect(url_for('users'))
@@ -136,7 +141,7 @@ def users():
 
     return render_template('users.html',    current_user=current_user, 
                                             all_users=all_users, 
-                                            flwrs_dict=flwrs_dict)
+                                            flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user)
 
 def all_followers_of_user(id):
     all_followers = User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
@@ -160,21 +165,21 @@ def profile_edit(username):
     (print(user_to_edit))
     if request.method == 'POST':
         confirm_password = request.form['password']
-        print(confirm_password)
         if check_password_hash(user_to_edit.password, confirm_password):
             user_to_edit.username = request.form['username']
             user_to_edit.firstname = request.form['firstname']
             user_to_edit.lastname = request.form['lastname']
-
+            user_to_edit.birthdate = request.form['birthdate']
+            user_to_edit.city = request.form['city']
             db.session.commit()
             flash('{}\' profile has been successfully updated'.format(user_to_edit.username), 'success')
-            return redirect(url_for('profile_edit', id=id))
+            return redirect(url_for('profile_edit', username=user_to_edit.username))
         else:
             flash('Incorrect password.', 'danger')
             return redirect(url_for('profile_edit', id=id))
 
 
-    return render_template('profile_edit.html', user_to_edit=user_to_edit)
+    return render_template('profile_edit.html', user_to_edit=user_to_edit, send_confirmation_email=send_confirmation_email)
 
 
 
@@ -214,7 +219,8 @@ def follow_user(username):
     db.session.commit()
 
 
-    return redirect(url_for('user', username=user_to_follow.username))
+    # return redirect(url_for('user', username=user_to_follow.username))
+    return redirect(request.referrer)
 
 
 

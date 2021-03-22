@@ -29,9 +29,9 @@
                     <input type="text" id="lastname" name='lastname' class="form-control" value="{{user_to_edit.lastname}}" autofocus>
                     {% endif %}
                     {% if user_to_edit.city|length < 1 %}
-                    <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Your city" autofocus>
+                    <input type="text" id="city" name='city' class="form-control" placeholder="Your city" autofocus>
                     {% else %}
-                    <input type="text" id="lastname" name='lastname' class="form-control" value="{{user_to_edit.city}}" autofocus>
+                    <input type="text" id="city" name='city' class="form-control" value="{{user_to_edit.city}}" autofocus>
                     {% endif %}
 
                     <input type="date" id="birthdate" name='birthdate' class="form-control" value="{{user_to_edit.birthdate}}" autofocus>
@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
+        <p><a href="{{ url_for('send_confirmation_email', email_address=user_to_edit.email) }}">Send confirmation email</a></p>
         <button class="btn btn-lg btn-info btn-block mt-5" type="submit" style="width: 100%">Submit</button>
       </form>
-        <p class="mt-5 mb-3 text-muted">&copy Evgeny Stepanchenko, 2021</p>
 {% endblock %}
