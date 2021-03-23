@@ -28,6 +28,7 @@ s = URLSafeTimedSerializer(Config.SECRET_KEY)
 def send_confirmation_email(email_address):
     token = generate_confirmation_token(email_address)
     email_sender.send_confirmation_email(email=email_address, token=token)
+    flash('Please check your email and follow the link', 'success')
     return redirect(request.referrer)
 
 @app.route('/confirm_email/<token>')
