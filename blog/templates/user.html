@@ -13,16 +13,17 @@
 
     {% include '_messages.html' %}
     <div class="container">
-        <h1 class="text-center">{{ post_host.username }}'s wall</h1>
 
         <div class="row">
 
-            <div class="col-sm-10"></div>
+            <div class="col-sm-10">
+                <h1 class="text-center">{{ post_host.username }}'s wall</h1>
+            </div>
             {% if current_user.username != post_host.username %}
                 {% if current_user in d[post_host.id] %}
-                    <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Unfollow {{ post_host.username }}</a></div>
+                    <div class="col-sm-2 vertical-center"><a href="{{url_for('follow_user', username=post_host.username)}}">Unfollow {{ post_host.username }}</a></div>
                 {% else %}
-                    <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post_host.username)}}">Follow {{ post_host.username }}</a></div>
+                    <div class="col-sm-2 vertical-center"><a href="{{url_for('follow_user', username=post_host.username)}}">Follow {{ post_host.username }}</a></div>
                 {% endif %}
             {% endif %}
 
@@ -45,7 +46,7 @@
         </div>
 
         {% if current_user.id == post_host.id %}
-            <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" data-text-show="Hide" data-text-hide="Write a new post">
+            <a id="toggleLink" href="javascript:void(0);" onclick="viewdiv('mydiv');" class="btn btn-info btn-sm" data-text-show="Hide" data-text-hide="Write a new post">
                 Write a new post
             </a>
         {% endif %}
@@ -71,15 +72,15 @@
         <span class="">
             <p>Posted by {{post_host.username}} on {{ post.post_date_added.strftime('%B %d, %Y') }}:</p>
         </span>
+        <hr>
             <p>{{ post.post_content }}</p>
         <div class="row">
-            <div class="col-sm-5"></div>
-            <div class="col-sm-2 text-right"><a href="{{url_for('like_post', id=post.id)}}">Like({{post.post_likes_qty}})</div>
-            <div class="col-sm-2 text-right"><a href="{{url_for('discuss_post', id=post.id)}}">Discuss</a></div>
-            {% if current_user in d[post.post_author_id] %}
-                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post.post_author_username)}}">Unfollow</a></div>
+            <div class="col-sm-8"></div>
+            <div class="col-sm-2 text-right"><a href="{{url_for('discuss_post', id=post.id)}}" class="btn btn-info btn-sm">Discuss</a></div>
+            {% if current_user.id == post.post_author_id %}
+                <div class="col-sm-2 text-right"><a href="{{url_for('delete_post', id=post.id)}}" class="btn btn-info btn-sm">Delete post</a></div>
             {% else %}
-                <div class="col-sm-2 text-right"><a href="{{url_for('follow_user', username=post.post_author_username)}}">Follow</a></div>
+                <div class="col-sm-2 text-right"><a href="{{url_for('like_post', id=post.id)}}" class="btn btn-info btn-sm">Like({{post.post_likes_qty}})</a></div>
             {% endif %}
         </div>    
     </div>

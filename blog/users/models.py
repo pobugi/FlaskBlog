@@ -31,8 +31,8 @@ class User(UserMixin, db.Model):
     followers_qty = db.Column(db.Integer, default=0)
 
 
-    posts = db.relationship('Post', backref='user', lazy='dynamic')
-    likes = db.relationship('Like', backref='user', lazy='dynamic')
+    posts = db.relationship('Post', backref='user', cascade="all, delete", lazy='dynamic')
+    likes = db.relationship('Like', backref='user', cascade="all, delete", lazy='dynamic')
     # comments = db.relationship('Comment', backref='user', lazy='dynamic')
     # followers = db.relationship('Follower', backref='user', lazy='dynamic')
     # followers = db.relationship('User', secondary=followers, backref=db.backref('followers_of_user', lazy=True))
@@ -40,6 +40,16 @@ class User(UserMixin, db.Model):
 
     def __str__(self):
         return 'User {}'.format(self.username)
+
+    def all_users():
+        return User.query.all()
+    
+    def get_user_by_username(username):
+        return User.query.filter_by(username=username).first()
+
+    def all_followers(id):
+        return User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
+
 
 
 # class Follower(db.Model):

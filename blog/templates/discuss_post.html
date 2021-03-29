@@ -1,0 +1,55 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Discuss</title> 
+{% endblock %}
+
+
+{% block body %}
+
+    {% include '_messages.html' %}
+    <div class="container">
+        <h1 class="text-center">Discuss {{post_to_discuss.post_author_username}}'s post "{{post_to_discuss.post_title}}"</h1>
+    </div>
+
+
+        <div class="container p-3 my-3 border">
+            <h2 class="subheading">{{ post_to_discuss.post_title }}</h1>
+            <span class="">
+                <p>Posted by {{post_to_discuss.post_author_username}} on {{ post_to_discuss.post_date_added.strftime('%B %d, %Y') }}:</p>
+            </span>
+            <hr>
+                <p>{{ post_to_discuss.post_content }}</p>
+            <div class="row">
+                <div class="col-sm-8"></div>
+                <div class="col-sm-2 text-right"><a href="{{url_for('discuss_post', id=post_to_discuss.id)}}" class="btn btn-info btn-sm">Discuss</a></div>
+                {% if current_user.id == post_to_discuss.post_author_id %}
+                    <div class="col-sm-2 text-right"><a href="{{url_for('delete_post', id=post_to_discuss.id)}}" class="btn btn-info btn-sm">Delete post</a></div>
+                {% else %}
+                    <div class="col-sm-2 text-right"><a href="{{url_for('like_post', id=post_to_discuss.id)}}" class="btn btn-info btn-sm">Like({{post_to_discuss.post_likes_qty}})</a></div>
+                {% endif %}
+            </div>
+            <div class="row">
+                <div class="col-sm-2"></div>
+                <div class="col-sm-10"><p>Comments:</p>
+                        <div class="container-sm">
+                            <form action="{{url_for('discuss_post', id=post_to_discuss.id)}}" method='POST' class="form-signin">
+                                <textarea class="form-control rounded-0" name='post_comment' id="post_comment" rows="3" placeholder="Put your comment here" required></textarea>
+                                <button class="btn btn-lg btn-info btn-block" type="submit">Comment</button>
+                            </form>
+                        </div>
+                    {% for comment in all_comments %}
+                        <div class="container">
+                            <h4>{{ comment.comment_author_username }}</h4> 
+                            <p>Commented on {{comment.comment_date_added.strftime('%b %d %Y, %X')}}</p> 
+                            <p>{{ comment.comment_content }}</p> 
+                            <hr>
+                        </div>
+                    {% endfor %}
+                </div>
+            </div>    
+        </div>
+
+
+
+{% endblock %}

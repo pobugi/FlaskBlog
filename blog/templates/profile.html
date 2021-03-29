@@ -1,0 +1,61 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>{{user_profile.username}}'s profile</title> 
+{% endblock %}
+
+
+{% block body %}
+    {% include '_messages.html' %}
+
+    <form action='' method='POST' class="form-signin" enctype="multipart/form-data">
+        <h3 class="h3 mb-3 font-weight-normal text-center">{{user_profile.username}}'s profile</h3>
+        {% if user_profile == current_user %}
+            <p>it's you</p>
+        {% else %}
+            {% if current_user in flwrs_dict[user_profile.id] %}
+            <td><a href="{{ url_for('follow_user', username=user_profile.username) }}">Unfollow</a></td> 
+            {% else %}
+            <td><a href="{{ url_for('follow_user', username=user_profile.username) }}">Follow</a></td>
+            {% endif %}
+        {% endif %}
+
+
+
+        <div class="container">
+            <div class="row">
+                <div class="col-md-6">
+                    <input id="username" name='username' class="form-control" value="{{user_profile.username}}" required autofocus disabled>
+                    <input type="email" id="email" name='email' class="form-control" value="{{user_profile.email}}" required autofocus disabled>
+                    {% if user_profile.firstname|length < 1 %}
+                        <input type="text" id="firstname" name='firstname' class="form-control" placeholder="First name" autofocus disabled>
+                    {% else %}
+                        <input type="text" id="firstname" name='firstname' class="form-control" value="{{user_profile.firstname}}" autofocus disabled>
+                    {% endif %}
+                    {% if user_profile.lastname|length < 1 %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" placeholder="Last name" autofocus disabled>
+                    {% else %}
+                    <input type="text" id="lastname" name='lastname' class="form-control" value="{{user_profile.lastname}}" autofocus disabled>
+                    {% endif %}
+                    {% if user_profile.city|length < 1 %}
+                    <input type="text" id="city" name='city' class="form-control" placeholder="City" autofocus disabled>
+                    {% else %}
+                    <input type="text" id="city" name='city' class="form-control" value="{{user_profile.city}}" autofocus disabled> 
+                    {% endif %}
+                    <input type="date" id="birthdate" name='birthdate' class="form-control" value="{{user_profile.birthdate}}" autofocus disabled>                    
+                    <p>Has {{all_followers_of_user(user_profile.id)|length}} followers</p>
+                    <p>Has {{all_posts_by_author(user_profile.id)|length}} posts</p>                   
+                </div>
+                <div class="col-md-6">
+                    <img src="{{ url_for('static', filename='images/userpics/' + user_profile.userpic) }}" width="73%" height="auto" alt="{{ user_profile.userpic }} userpic">
+                    <br>
+                    <label class="btn btn-info mt-2" style='vertical-align: bottom'>
+                        Change userpic <input type="file" id="userpic" name="userpic" hidden>
+                    </label>
+
+                </div>
+            </div>
+        </div>
+        <button class="btn btn-lg btn-info btn-block mt-2" type="submit" style="width: 100%">Submit</button>
+      </form>
+{% endblock %}

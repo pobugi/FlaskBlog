@@ -1,6 +1,8 @@
 import datetime
 import secrets
+import os
 from .models import User, followers
+from blog.posts.models import Post
 
 from blog import email_sender
 
@@ -130,7 +132,8 @@ def logout():
 def users():
     # yyy = db.session.query(User.id).all()
 
-    all_users = User.query.all()
+    # all_users = User.query.all()
+    all_users = User.all_users()
 
     user_ids = [user.id for user in all_users]   # list of all user IDs
     # a dictionary {user_id: [list of followers of user_id]}
@@ -145,20 +148,37 @@ def users():
                                             flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user)
 
 def all_followers_of_user(id):
-    all_followers = User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
-
+    # all_followers = User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
+    all_followers = User.all_followers(id)
     # all_followers = db.session.query(followers.c.follower_id).filter(followers.c.user_id == id).all()
     # print('ALL FOLLOWERS:', all_followers)
 
     # return [i._asdict() for i in all_followers]
     return all_followers
 
+@app.route('/users/<username>/profile/watch')
+@login_required
+def profile(username):
+    user_profile = User.get_user_by_username(username)
+    
+    all_users = User.all_users()
+
+    user_ids = [user.id for user in all_users]
+    flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
+
+    return render_template('profile.html', user_profile=user_profile, 
+                                            follow_user=follow_user, 
+                                            flwrs_dict=flwrs_dict,
+                                            all_followers_of_user=all_followers_of_user,
+                                            all_posts_by_author = Post.all_posts_by_author)
+
 
 # @app.route('/users/<int:id>/profile', methods=['GET', 'POST'])
 @app.route('/users/<username>/profile', methods=['GET', 'POST'])
 @login_required
 def profile_edit(username):
-    user_to_edit = User.query.filter_by(username=username).first()
+    # user_to_edit = User.query.filter_by(username=username).first()
+    user_to_edit = User.get_user_by_username(username)
     if not current_user.id == user_to_edit.id:
         flash('This page is restricted! You cannot edit other users pages', 'danger')
         return redirect(url_for('users'))
@@ -172,12 +192,15 @@ def profile_edit(username):
             user_to_edit.lastname = request.form['lastname']
             user_to_edit.birthdate = request.form['birthdate']
             user_to_edit.city = request.form['city']
+            if request.files['userpic']:
+                os.remove(basedir + "/static/images/userpics/" + user_to_edit.userpic)
+                user_to_edit.userpic = photos.save(request.files['userpic'], name=secrets.token_hex(10) + ".")
             db.session.commit()
             flash('{}\' profile has been successfully updated'.format(user_to_edit.username), 'success')
             return redirect(url_for('profile_edit', username=user_to_edit.username))
         else:
             flash('Incorrect password.', 'danger')
-            return redirect(url_for('profile_edit', id=id))
+            return redirect(url_for('profile_edit', username=user_to_edit.username))
 
 
     return render_template('profile_edit.html', user_to_edit=user_to_edit, send_confirmation_email=send_confirmation_email)

@@ -35,6 +35,16 @@ class Post(db.Model):
     def likes_decrement(self):
         self.post_likes_qty -= 1
 
+    def get_post_by_id(id):
+        return Post.query.get(id)
+
+    def all_posts():
+        return Post.query.order_by(Post.post_date_added.desc()).all()
+
+    def all_posts_by_author(id):
+        return Post.query.filter_by(post_author_id=id).order_by(Post.post_date_added.desc()).all()
+
+
     
 class Like(db.Model):
     __tablename__ = 'like'
