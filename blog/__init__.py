@@ -33,3 +33,5 @@ app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 
 from .users import routes
 from .posts import routes
+from .admin import routes
+from .errors import handlers

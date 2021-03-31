@@ -8,8 +8,6 @@ followers = db.Table('followers',
                      db.Column('follower_id', db.Integer, db.ForeignKey('user.id')))
 
 
-
-
 class User(UserMixin, db.Model):
 
     __tablename__ = 'user'
@@ -33,10 +31,6 @@ class User(UserMixin, db.Model):
 
     posts = db.relationship('Post', backref='user', cascade="all, delete", lazy='dynamic')
     likes = db.relationship('Like', backref='user', cascade="all, delete", lazy='dynamic')
-    # comments = db.relationship('Comment', backref='user', lazy='dynamic')
-    # followers = db.relationship('Follower', backref='user', lazy='dynamic')
-    # followers = db.relationship('User', secondary=followers, backref=db.backref('followers_of_user', lazy=True))
-
 
     def __str__(self):
         return 'User {}'.format(self.username)
@@ -50,14 +44,8 @@ class User(UserMixin, db.Model):
     def all_followers(id):
         return User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
 
-
-
-# class Follower(db.Model):
-#     __tablename__ = 'follower'
-#     id = db.Column(db.Integer, primary_key=True)
-#     followed_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-#     follower_id = db.Column(db.Integer, db.ForeignKey('user.id'))
-
+    def all_followed_by_user(id):
+        return User.query.join(followers, (User.id == followers.c.user_id)).filter_by(follower_id=id).all()
 
 
 @login_manager.user_loader

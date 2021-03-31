@@ -1,15 +1,6 @@
 from blog import db
 from blog.users.models import User
-
-
-
-# posts_users = db.Table('posts_users',
-#                         db.Column('post_id', db.Integer, db.ForeignKey('post.id')),
-#                         db.Column('post_author_id', db.Integer, db.ForeignKey('user.id')))
-
-# postlikes = db.Table('postlikes',
-#                      db.Column('liked_post_id', db.Integer, db.ForeignKey('post.id')),
-#                      db.Column('liked_user_id', db.Integer, db.ForeignKey('user.id')))
+from blog.comments.models import Comment
 
 
 class Post(db.Model):
@@ -23,9 +14,8 @@ class Post(db.Model):
     post_date_added = db.Column(db.DateTime, nullable=True)
     post_likes_qty = db.Column(db.Integer, default=0)
 
-    # likes = db.relationship('User', secondary=postlikes, backref=db.backref('postslikedbyuser', lazy=True))
+    comments = db.relationship('Comment', backref='post', cascade="all, delete", lazy='dynamic')
 
-    # post_likes_qty = db.Column(db.Integer, default=0)
     def __str__(self):
         return 'Post ID: {}, Author: {}'.format(self.id, self.post_author_username)
 

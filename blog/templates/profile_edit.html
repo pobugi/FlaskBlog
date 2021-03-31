@@ -1,13 +1,11 @@
 {% extends 'base.html' %}
 
 {% block head %}
-<title>Edit profile</title> 
+<title>Edit your profile</title> 
 {% endblock %}
-
 
 {% block body %}
     {% include '_messages.html' %}
-
     <form action='{{ url_for('profile_edit', username=user_to_edit.username) }}' method='POST' class="form-signin" enctype="multipart/form-data">
         <h3 class="h3 mb-3 font-weight-normal text-center">Update the information about you</h3>
 
@@ -40,7 +38,6 @@
                         <input type="text" id="is_confirmed" name='is_confirmed' class="form-control" value="Please confirm your email" autofocus disabled>
                         <p><a href="{{ url_for('send_confirmation_email', email_address=user_to_edit.email) }}">Send confirmation email</a></p>
                     {% endif %}
-                    
                 </div>
                 <div class="col-md-6">
                     <img src="{{ url_for('static', filename='images/userpics/' + user_to_edit.userpic) }}" width="73%" height="auto" alt="{{ user_to_edit.userpic }} userpic">

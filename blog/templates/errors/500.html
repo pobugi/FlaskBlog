@@ -1,0 +1,15 @@
+{% extends 'base.html' %}
+
+{% block head %}
+<title>Error 500</title> 
+{% endblock %}
+
+
+{% block body %}
+    <div class="container">
+
+        <h1>Seems like we have some troubles on our side. Try again later.</h1>
+        <p>{{error}}</p>
+    
+    </div>
+{% endblock %}

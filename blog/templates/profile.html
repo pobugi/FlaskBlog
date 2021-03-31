@@ -4,14 +4,13 @@
 <title>{{user_profile.username}}'s profile</title> 
 {% endblock %}
 
-
 {% block body %}
     {% include '_messages.html' %}
-
     <form action='' method='POST' class="form-signin" enctype="multipart/form-data">
+        
         <h3 class="h3 mb-3 font-weight-normal text-center">{{user_profile.username}}'s profile</h3>
         {% if user_profile == current_user %}
-            <p>it's you</p>
+            <h6 class="h6 mb-1 font-weight-light text-center"><a href="{{url_for('profile_edit', username=current_user.username)}}">Edit your profile</a></h6>
         {% else %}
             {% if current_user in flwrs_dict[user_profile.id] %}
             <td><a href="{{ url_for('follow_user', username=user_profile.username) }}">Unfollow</a></td> 
@@ -19,8 +18,6 @@
             <td><a href="{{ url_for('follow_user', username=user_profile.username) }}">Follow</a></td>
             {% endif %}
         {% endif %}
-
-
 
         <div class="container">
             <div class="row">
@@ -43,19 +40,23 @@
                     <input type="text" id="city" name='city' class="form-control" value="{{user_profile.city}}" autofocus disabled> 
                     {% endif %}
                     <input type="date" id="birthdate" name='birthdate' class="form-control" value="{{user_profile.birthdate}}" autofocus disabled>                    
-                    <p>Has {{all_followers_of_user(user_profile.id)|length}} followers</p>
-                    <p>Has {{all_posts_by_author(user_profile.id)|length}} posts</p>                   
+                   
+                    <p>Has {{all_followers_of_user(user_profile.id)|length}} followers:
+                        {% for follower in  all_followers_of_user(user_profile.id)%}
+                            <a href="{{url_for('profile', username=follower.username)}}">{{follower.username}}, </a>    
+                        {% endfor %}
+                    </p>
+                    <p>Follows: {{all_followed_by_user(user_profile.id)|length}}
+                        {% for followed in  all_followed_by_user(user_profile.id)%}
+                            <a href="{{url_for('profile', username=followed.username)}}">{{followed.username}}, </a>    
+                        {% endfor %}
+                    </p>
+                    <p>Has {{all_posts_by_author(user_profile.id)|length}} posts <a href="{{url_for('user', username=user_profile.username)}}">See his posts</a> </p>                   
                 </div>
                 <div class="col-md-6">
                     <img src="{{ url_for('static', filename='images/userpics/' + user_profile.userpic) }}" width="73%" height="auto" alt="{{ user_profile.userpic }} userpic">
-                    <br>
-                    <label class="btn btn-info mt-2" style='vertical-align: bottom'>
-                        Change userpic <input type="file" id="userpic" name="userpic" hidden>
-                    </label>
-
                 </div>
             </div>
         </div>
-        <button class="btn btn-lg btn-info btn-block mt-2" type="submit" style="width: 100%">Submit</button>
       </form>
 {% endblock %}

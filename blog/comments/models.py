@@ -1,7 +1,6 @@
 from blog import db
 
 from blog.users.models import User
-from blog.posts.models import Post
 
 
 class Comment(db.Model):
@@ -13,5 +12,4 @@ class Comment(db.Model):
     comment_author_username = db.Column(db.String(50), nullable=False)
     comment_content = db.Column(db.String(500), nullable=False)
     comment_date_added = db.Column(db.DateTime, nullable=True)
-    post = db.relationship('Post',cascade="all,delete", backref=db.backref('post', lazy=True))
 

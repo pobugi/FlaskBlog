@@ -2,11 +2,16 @@ import datetime
 from .models import Post, Like
 from blog.comments.models import Comment
 from blog.users.models import User
-# from blog.posts.models import postlikes
 from blog import app, db
 from flask import redirect, render_template, request, flash, url_for, abort
 from flask_login import login_required, current_user
 from blog.users.routes import all_followers_of_user
+
+
+all_users = User.all_users()
+
+user_ids = [user.id for user in all_users]
+flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
 
 def get_user_by_post_id(id):
     return db.session.query(User).select_from(User).join(Post).filter(User.id == Post.post_author_id).first()
@@ -16,23 +21,15 @@ def get_user_by_post_id(id):
 @login_required
 def user(username):
     post_host = User.query.filter_by(username=username).first()
-    # all_posts = Post.query.join(posts_users, (Post.id == posts_users.c.post_id)).filter_by(post_author_id=id).all()
-    
-    # all_users = User.query.all() replaced by the models function
     all_users = User.all_users()
 
     d = {}
     user_ids = []   # list of all user IDs
     for user in all_users:
         user_ids.append(user.id)
-    # print('USER IDs:', user_ids)
 
     for user_id in user_ids:
         d[user_id] = all_followers_of_user(user_id) # a dictionary {user_id: [list of followers of user_id]}
-    # print('d:', d)
-
-    # users_already_liked_post = \
-    #         db.session.query(User).select_from(User).join(Like).filter(Like.liked_post_id == k).all()
 
     if request.method == 'POST':
         new_post_post_author_id = post_host.id
@@ -51,7 +48,6 @@ def user(username):
         db.session.commit()
         return redirect(url_for('user', username=username))
 
-    # all_posts = Post.query.filter_by(post_author_id=post_host.id).order_by(Post.post_date_added.desc()).all()
     all_posts = Post.all_posts_by_author(post_host.id)
     
     all_followers = all_followers_of_user(post_host.id)
@@ -67,7 +63,6 @@ def user(username):
 @app.route('/feed')
 @login_required
 def feed():
-    # all_posts = Post.query.order_by(Post.post_date_added.desc()).all()
     all_posts = Post.all_posts()
     return render_template('feed.html', all_posts=all_posts, get_user_by_post_id=get_user_by_post_id)
 
@@ -96,7 +91,9 @@ def discuss_post(id):
         flash('Commend added', 'success')
         return redirect(request.referrer)
     return render_template('discuss_post.html', post_to_discuss=post_to_discuss,
-                                                all_comments=all_comments)
+                                                all_comments=all_comments,
+                                                flwrs_dict=flwrs_dict)
+
 
 @app.route('/posts/postid<int:id>/delete')
 @login_required
@@ -107,13 +104,13 @@ def delete_post(id):
         db.session.commit()
     else:
         abort(405)
-    return redirect(request.referrer)
+    return redirect(url_for('user', username=current_user.username))
+
 
 @app.route('/posts/postid<int:id>/pushlike')
 @login_required
 def like_post(id):
 
-    # post_to_be_liked = Post.query.get(id)
     post_to_be_liked = Post.get_post_by_id(id)
 
     users_already_liked_post = \
@@ -123,56 +120,14 @@ def like_post(id):
         new_like = Like(like_author_id = current_user.id,
                         liked_post_id = id)
         post_to_be_liked.likes_increment()                
-        # likes_increment = post_to_be_liked.post_likes_qty += 1
         db.session.add(new_like)
         flash('Like posted :)', 'success')
 
     else:
         like_to_delete = Like.query.filter(Like.like_author_id == current_user.id, Like.liked_post_id == id).first()
-        # likes_decrement = post_to_be_liked.post_likes_qty -= 1
         post_to_be_liked.likes_decrement()                
         db.session.delete(like_to_delete)
         flash('Like deleted :(', 'danger')
     db.session.commit()
 
-    print(post_to_be_liked)
-    print('L=',len(users_already_liked_post))
-    print(current_user in users_already_liked_post)
-    # return redirect(url_for('discuss_post', id=post_to_be_liked.post_author_id))
     return redirect(request.referrer)
-    # liked_post_host_id = post_to_be_liked.post_author_id
-
-    # users_already_liked_post = User.query.join(postlikes, (User.id == postlikes.c.liked_user_id)).filter_by(liked_post_id=id).all()
-
-
-
-    # users_already_liked_post = Like.query.filter_by(liked_post_id=id, like_author_id=current_user.id).all()
-
-    # like_objects = Like.query.join(User, (id==Like.like_author_id)).filter_by(liked_post_id=id).all()
-
-    # print(current_user in res)
-    # print('PIZDAAAA', res)
-
-
-    # if current_user in users_already_liked_post:
-    #     return 'LIKE REMOVED!'
-
-    # new_like = Like(like_author_id = current_user.id, 
-    #                 liked_post_id = id)
-    # db.session.add(new_like)
-    # db.session.commit()
-
-    # return redirect(url_for('user', id=3))
-    # like = postlikes.insert().values(liked_post_id=id, liked_user_id=current_user.id)
-    # db.session.execute(like)
-    # db.session.commit()
-    # return 'LIKE POSTED!'
-
-
-
-
-
-
-    
-
-

@@ -8,7 +8,7 @@ from blog import email_sender
 
 from blog import app, db, photos, basedir, mail
 from blog.token import generate_confirmation_token, confirm_token
-from flask import redirect, render_template, request, flash, url_for
+from flask import redirect, render_template, request, flash, url_for, abort
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
 
@@ -19,28 +19,49 @@ from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 s = URLSafeTimedSerializer(Config.SECRET_KEY)
 
 
-# @app.route('/')
-# def index():
-#     if current_user.is_authenticated:
-#         return redirect(url_for('users'))
-#     return redirect(url_for('login'))
+@app.route('/users/delete/<id>')
+@login_required
+def delete_user(id):
+    """
+    Delete user function
+    """
+    user_to_delete = User.query.get(id)
+    db.session.delete(user_to_delete)
+    db.session.commit()
+    flash('User deleted', 'danger')
+    return redirect(request.referrer)
+
+
+@app.route('/')
+def index():
+    """
+    Index page view
+    """
+    return redirect(url_for('feed'))
+
 
 @app.route('/send_confirmation_email/<email_address>')
 @login_required
 def send_confirmation_email(email_address):
+    """
+    Sending confirmation email functions
+    """
     token = generate_confirmation_token(email_address)
     email_sender.send_confirmation_email(email=email_address, token=token)
     flash('Please check your email and follow the link', 'success')
     return redirect(request.referrer)
 
+
 @app.route('/confirm_email/<token>')
 @login_required
 def confirm_email(token):
-    """E-mail confirmation"""
+    """
+    E-mail confirmation function
+    """
     try:
         email = confirm_token(token)
     except SignatureExpired:
-        return '<h1>TOKEN EXPIRED</h1>'
+        return 'Token has expired'
     user_to_confirm = User.query.filter_by(email=email).first_or_404()
     if user_to_confirm.is_confirmed:
         return 'This user already confirmed'
@@ -53,17 +74,20 @@ def confirm_email(token):
     return redirect(url_for('users'))
 
 
-
 @app.route('/register', methods=['POST', 'GET'])
 def register():
+    """
+    User registering function
+    """
     if request.method == 'POST':
-        new_user_username = request.form['username']
-        new_user_email = request.form['email']
+        new_user_username = request.form['username'].lower()
+        new_user_email = request.form['email'].lower()
         new_user_password = generate_password_hash(request.form['password'])
-        new_user_firstname = request.form['firstname']
-        new_user_lastname = request.form['lastname']
-        new_user_city = request.form['city']
-        # new_user_birthday = request.form['birthday']
+        new_user_firstname = request.form['firstname'].capitalize()
+        new_user_lastname = request.form['lastname'].capitalize()
+        new_user_city = request.form['city'].capitalize()
+        new_user_birthday = datetime.datetime.strptime(request.form['birthdate'], '%Y-%m-%d')
+        print(new_user_birthday)
         new_user_gender = request.form['gender']
         new_user_registation_date = datetime.datetime.utcnow()
         if request.files['userpic']:
@@ -77,7 +101,7 @@ def register():
                         firstname=new_user_firstname,
                         lastname=new_user_lastname,
                         city=new_user_city,
-                        # birthday=new_user_birthday,
+                        birthdate=new_user_birthday,
                         gender=new_user_gender,
                         registration_date=new_user_registation_date,
                         userpic=new_user_userpic)
@@ -86,18 +110,19 @@ def register():
         login_user(new_user)
 
         send_confirmation_email(new_user_email)
-        # token = generate_confirmation_token(new_user_email)
-        # email_sender.send_confirmation_email(email=new_user_email, token=token)
 
-        flash('Welcome, {}! You\'re registered now. Please, confirm your email (we\'ve just sent you a link)'.format(new_user.username), 'success')
+        flash('Welcome, {}! You\'re registered now. Please, confirm your email'.format(new_user.username), 'success')
         return redirect(url_for('users'))
     return render_template('register.html')
 
 
 @app.route('/login', methods=['POST', 'GET'])
 def login():
+    """
+    User login function
+    """
     if request.method == 'POST':
-        username = request.form['username']
+        username = request.form['username'].lower()
         user_password = request.form['password']
         if '@' in username:
             user_to_login = User.query.filter_by(email=username).first()
@@ -116,10 +141,13 @@ def login():
                 return(redirect(url_for('login')))
     return render_template('login.html')
 
+
 @app.route('/logout')
 @login_required
 def logout():
-    """logs out a user"""
+    """
+    User logout function
+    """
     user_to_logout = current_user
     # person.is_online = False
     logout_user()
@@ -129,23 +157,20 @@ def logout():
 
 
 @app.route('/users', methods=['POST', 'GET'])
+@login_required
 def users():
-    # yyy = db.session.query(User.id).all()
-
-    # all_users = User.query.all()
     all_users = User.all_users()
 
     user_ids = [user.id for user in all_users]   # list of all user IDs
     # a dictionary {user_id: [list of followers of user_id]}
     flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
-    # flwrs_dict = {}
-    # for id in user_ids:
-    #     flwrs_dict[id] = all_followers_of_user(id)
     print(flwrs_dict)
 
     return render_template('users.html',    current_user=current_user, 
                                             all_users=all_users, 
-                                            flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user)
+                                            flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user,
+                                            all_posts_by_author = Post.all_posts_by_author)
+
 
 def all_followers_of_user(id):
     # all_followers = User.query.join(followers, (User.id == followers.c.follower_id)).filter_by(user_id=id).all()
@@ -156,6 +181,7 @@ def all_followers_of_user(id):
     # return [i._asdict() for i in all_followers]
     return all_followers
 
+
 @app.route('/users/<username>/profile/watch')
 @login_required
 def profile(username):
@@ -165,19 +191,20 @@ def profile(username):
 
     user_ids = [user.id for user in all_users]
     flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
-
     return render_template('profile.html', user_profile=user_profile, 
                                             follow_user=follow_user, 
                                             flwrs_dict=flwrs_dict,
                                             all_followers_of_user=all_followers_of_user,
-                                            all_posts_by_author = Post.all_posts_by_author)
+                                            all_posts_by_author = Post.all_posts_by_author,
+                                            all_followed_by_user=User.all_followed_by_user)
 
 
-# @app.route('/users/<int:id>/profile', methods=['GET', 'POST'])
 @app.route('/users/<username>/profile', methods=['GET', 'POST'])
 @login_required
 def profile_edit(username):
-    # user_to_edit = User.query.filter_by(username=username).first()
+    if username != current_user.username:
+        abort(403)
+
     user_to_edit = User.get_user_by_username(username)
     if not current_user.id == user_to_edit.id:
         flash('This page is restricted! You cannot edit other users pages', 'danger')
@@ -206,17 +233,12 @@ def profile_edit(username):
     return render_template('profile_edit.html', user_to_edit=user_to_edit, send_confirmation_email=send_confirmation_email)
 
 
-
-
-@app.route('/')
-def index():
-
-    return 'HELLO'
-
 @app.route('/users/follow/<username>', methods=['GET', 'POST'])
 @login_required
 def follow_user(username):
-
+    """
+    Folow user function
+    """
     user_to_follow = User.query.filter_by(username=username).first() # Select the user to follow
     print(user_to_follow.email)
 
@@ -242,11 +264,4 @@ def follow_user(username):
         flash('You are now following {}!'.format(user_to_follow.username), 'success')
     db.session.commit()
 
-
-    # return redirect(url_for('user', username=user_to_follow.username))
     return redirect(request.referrer)
-
-
-
-
-

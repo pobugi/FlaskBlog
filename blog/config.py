@@ -20,7 +20,8 @@ class Config(object):
     SECRET_KEY = os.environ.get('SECRET_KEY') or 'secretkey'
     SECURITY_PASSWORD_SALT = 'email-confirm'
     # SQLALCHEMY_DATABASE_URI = 'sqlite:///database/users.db'
-    # SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:postgres@localhost:5432/users'
+    # SQLALCHEMY_DATABASE_URI = 
+    # 'postgresql://postgres:postgres@localhost:5432/users'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     SEND_FILE_MAX_AGE_DEFAULT = 0
     # MAIL_SERVER = 'smtp.yandex.ru'
@@ -44,3 +45,4 @@ class Config(object):
 
     # MAIL_USERNAME = 'twttrspprt12@gmail.com'
     # MAIL_PASSWORD = 'Qw987654'
+    
