@@ -1,4 +1,7 @@
 import os
+import logging
+from logging.handlers import RotatingFileHandler
+from logging import Formatter
 from flask import Flask, render_template, request
 from flask_sqlalchemy import SQLAlchemy
 from flask_login import LoginManager
@@ -16,6 +19,14 @@ photos = UploadSet('photos', IMAGES)
 
 configure_uploads(app, photos)
 patch_request_class(app)
+
+handler = RotatingFileHandler(app.config['LOGFILE'],
+                              maxBytes=1000000, backupCount=1)
+logging.basicConfig(level=logging.DEBUG)
+handler.setLevel(logging.DEBUG)
+handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s'))
+app.logger.addHandler(handler)
+
 db = SQLAlchemy(app)
 mail = Mail(app)
 

@@ -34,6 +34,7 @@ class Config(object):
     ADMINS = ['flaskblogdummy@gmail.com']
     # ADMINS = ['evgenystestmail@yandex.ru']
     TESTING = False
+    LOGFILE = 'logs.log'
 
 
     # MAIL_USERNAME = 'twttrspprt@yandex.ru'

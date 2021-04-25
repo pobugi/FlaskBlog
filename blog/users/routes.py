@@ -16,6 +16,17 @@ from blog.config import Config
 
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
 
+
+# from logging.handlers import RotatingFileHandler
+# from logging import Formatter
+# import logging
+#
+# handler = RotatingFileHandler(app.config['LOGFILE'],
+#                               maxBytes=1000000, backupCount=1)
+# handler.setLevel(logging.DEBUG)
+# handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s'))
+# app.logger.addHandler(handler)
+
 s = URLSafeTimedSerializer(Config.SECRET_KEY)
 
 
@@ -135,9 +146,11 @@ def login():
             if check_password_hash(user_to_login.password, user_password):
                 login_user(user_to_login)
                 flash('Welcome, {}! You\'re logged in now.'.format(user_to_login.username), 'success')
+                app.logger.info('{} logged in'.format(user_to_login.username))
                 return(redirect(url_for('users')))
             else:
                 flash('Incorrect password. Try again.', 'danger')
+                app.logger.warning('Unsuccessful attempt to log in (wrong password)')
                 return(redirect(url_for('login')))
     return render_template('login.html')
 
