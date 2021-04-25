@@ -11,4 +11,5 @@
 	3. Создайте виртуальное окружение 
 	4. Установите зависимости: Linux: pip3 install -r requirements.txt Windows: pip install -r requirements.txt 
 	5. Запустите приложение (python app.py)
+	
 4.Предстоит ряд доработок приложения, в частности, перевод на БД PostgreSQL.
