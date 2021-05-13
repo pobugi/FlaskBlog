@@ -40,6 +40,7 @@ def delete_user(id):
     db.session.delete(user_to_delete)
     db.session.commit()
     flash('User deleted', 'danger')
+    app.logger.warning('User deleted.')
     return redirect(request.referrer)
 
 
@@ -60,6 +61,7 @@ def send_confirmation_email(email_address):
     token = generate_confirmation_token(email_address)
     email_sender.send_confirmation_email(email=email_address, token=token)
     flash('Please check your email and follow the link', 'success')
+    app.logger.info('Confirmation e-mail has been sent.')
     return redirect(request.referrer)
 
 
@@ -81,6 +83,7 @@ def confirm_email(token):
         db.session.add(user_to_confirm)
         db.session.commit()
         flash('Successfully confirmed your e-mail', 'success')
+        app.logger.info('User email confirmed.')
         return redirect(url_for('users'))
     return redirect(url_for('users'))
 
@@ -123,6 +126,7 @@ def register():
         send_confirmation_email(new_user_email)
 
         flash('Welcome, {}! You\'re registered now. Please, confirm your email'.format(new_user.username), 'success')
+        app.logger.info('User created.')
         return redirect(url_for('users'))
     return render_template('register.html')
 
@@ -141,6 +145,7 @@ def login():
             user_to_login = User.query.filter_by(username=username).first()
         if user_to_login is None:
             flash('User {} does not exist! Try again.'.format(username), 'danger')
+            app.logger.warning('Unsuccessful login attempt.')
             return redirect(url_for('login'))
         else:
             if check_password_hash(user_to_login.password, user_password):
@@ -166,6 +171,7 @@ def logout():
     logout_user()
     db.session.commit()
     flash('Successfully logged out', 'info')
+    app.logger.info('User logged out.')
     return redirect(url_for('login'))
 
 
@@ -221,6 +227,7 @@ def profile_edit(username):
     user_to_edit = User.get_user_by_username(username)
     if not current_user.id == user_to_edit.id:
         flash('This page is restricted! You cannot edit other users pages', 'danger')
+        app.logger.warning('Restricted page access attempt.')
         return redirect(url_for('users'))
 
     (print(user_to_edit))
@@ -237,9 +244,11 @@ def profile_edit(username):
                 user_to_edit.userpic = photos.save(request.files['userpic'], name=secrets.token_hex(10) + ".")
             db.session.commit()
             flash('{}\' profile has been successfully updated'.format(user_to_edit.username), 'success')
+            app.logger.info('User updated.')
             return redirect(url_for('profile_edit', username=user_to_edit.username))
         else:
             flash('Incorrect password.', 'danger')
+            app.logger.info('Incorrect password input.')
             return redirect(url_for('profile_edit', username=user_to_edit.username))
 
 
@@ -270,11 +279,13 @@ def follow_user(username):
         unfollow_user = followers.delete().where(followers.c.id == followers_table_id._asdict()['id'])
         db.session.execute(unfollow_user)
         flash('Now you\'re not following {} anymore :('.format(user_to_follow.username), 'danger')
+        app.logger.info('Unfollowed user.')
     else:
         #follow
         follow_usr = followers.insert().values(user_id=user_to_follow.id, follower_id=current_user.id)
         db.session.execute(follow_usr)
         flash('You are now following {}!'.format(user_to_follow.username), 'success')
+        app.logger.info('Followed user.')
     db.session.commit()
 
     return redirect(request.referrer)
