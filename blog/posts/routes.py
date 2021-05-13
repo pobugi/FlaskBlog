@@ -89,6 +89,7 @@ def discuss_post(id):
         db.session.add(new_post_comment)
         db.session.commit()
         flash('Commend added', 'success')
+        app.logger.info('Comment added')
         return redirect(request.referrer)
     return render_template('discuss_post.html', post_to_discuss=post_to_discuss,
                                                 all_comments=all_comments,
@@ -122,12 +123,15 @@ def like_post(id):
         post_to_be_liked.likes_increment()                
         db.session.add(new_like)
         flash('Like posted :)', 'success')
+        app.logger.info('Like posted')
+
 
     else:
         like_to_delete = Like.query.filter(Like.like_author_id == current_user.id, Like.liked_post_id == id).first()
         post_to_be_liked.likes_decrement()                
         db.session.delete(like_to_delete)
         flash('Like deleted :(', 'danger')
+        app.logger.info('Like removed')
     db.session.commit()
 
     return redirect(request.referrer)

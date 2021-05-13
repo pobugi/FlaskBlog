@@ -32,6 +32,21 @@ class User(UserMixin, db.Model):
     posts = db.relationship('Post', backref='user', cascade="all, delete", lazy='dynamic')
     likes = db.relationship('Like', backref='user', cascade="all, delete", lazy='dynamic')
 
+    @staticmethod
+    def ensure_unique_username(name):
+        """Ensure user name does not already exist"""
+        if User.query.filter_by(name=name).first() is None:
+            return name
+        version = 1
+        while True:
+            old_name = name
+            new_name = name + '_' + str(version)
+            if User.query.filter_by(name=new_name).first() is None:
+                break
+            version += 1
+        # flash('Your name has been changed to {} as user {} already exists.'.format(new_name, old_name), 'success')
+        return new_name
+
     def __str__(self):
         return 'User {}'.format(self.username)
 
