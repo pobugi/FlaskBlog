@@ -3,29 +3,14 @@ import secrets
 import os
 from .models import User, followers
 from blog.posts.models import Post
-
 from blog import email_sender
-
 from blog import app, db, photos, basedir, mail
 from blog.token import generate_confirmation_token, confirm_token
 from flask import redirect, render_template, request, flash, url_for, abort
 from flask_login import login_user, login_required, logout_user, current_user
 from werkzeug.security import generate_password_hash, check_password_hash
-
 from blog.config import Config
-
 from itsdangerous import URLSafeTimedSerializer, SignatureExpired
-
-
-# from logging.handlers import RotatingFileHandler
-# from logging import Formatter
-# import logging
-#
-# handler = RotatingFileHandler(app.config['LOGFILE'],
-#                               maxBytes=1000000, backupCount=1)
-# handler.setLevel(logging.DEBUG)
-# handler.setFormatter(Formatter('%(asctime)s %(levelname)s: %(message)s'))
-# app.logger.addHandler(handler)
 
 s = URLSafeTimedSerializer(Config.SECRET_KEY)
 
@@ -185,10 +170,10 @@ def users():
     flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
     print(flwrs_dict)
 
-    return render_template('users.html',    current_user=current_user, 
-                                            all_users=all_users, 
-                                            flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user,
-                                            all_posts_by_author = Post.all_posts_by_author)
+    return render_template('all_users.html', current_user=current_user,
+                           all_users=all_users,
+                           flwrs_dict=flwrs_dict, all_followers_of_user = all_followers_of_user,
+                           all_posts_by_author = Post.all_posts_by_author)
 
 
 def all_followers_of_user(id):
@@ -201,7 +186,7 @@ def all_followers_of_user(id):
     return all_followers
 
 
-@app.route('/users/<username>/profile/watch')
+@app.route('/users/<username>/profile')
 @login_required
 def profile(username):
     user_profile = User.get_user_by_username(username)
@@ -218,7 +203,7 @@ def profile(username):
                                             all_followed_by_user=User.all_followed_by_user)
 
 
-@app.route('/users/<username>/profile', methods=['GET', 'POST'])
+@app.route('/users/<username>/profile/edit', methods=['GET', 'POST'])
 @login_required
 def profile_edit(username):
     if username != current_user.username:

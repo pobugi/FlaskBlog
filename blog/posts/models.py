@@ -28,14 +28,19 @@ class Post(db.Model):
     def get_post_by_id(id):
         return Post.query.get(id)
 
+    @staticmethod
     def all_posts():
         return Post.query.order_by(Post.post_date_added.desc()).all()
 
+    @staticmethod
     def all_posts_by_author(id):
         return Post.query.filter_by(post_author_id=id).order_by(Post.post_date_added.desc()).all()
 
+    def who_liked_the_post(id):
+        who_liked_the_post = db.session.query(User).select_from(User).join(Like).filter(Like.liked_post_id == id).all()
+        return who_liked_the_post
 
-    
+
 class Like(db.Model):
     __tablename__ = 'like'
     id = db.Column(db.Integer, primary_key=True)

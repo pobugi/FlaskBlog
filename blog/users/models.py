@@ -1,15 +1,13 @@
 from blog import db, login_manager
 from flask_login import UserMixin
 
-
 followers = db.Table('followers',
-                    db.Column('id', db.Integer, primary_key=True),
+                     db.Column('id', db.Integer, primary_key=True),
                      db.Column('user_id', db.Integer, db.ForeignKey('user.id')),
                      db.Column('follower_id', db.Integer, db.ForeignKey('user.id')))
 
 
 class User(UserMixin, db.Model):
-
     __tablename__ = 'user'
     id = db.Column(db.Integer, primary_key=True)
     username = db.Column(db.String(50), nullable=False, unique=True)
@@ -22,12 +20,10 @@ class User(UserMixin, db.Model):
     gender = db.Column(db.String(50), default='Male')
     is_confirmed = db.Column(db.Boolean, nullable=False, default=False)
 
-
     registration_date = db.Column(db.DateTime, nullable=True)
     userpic = db.Column(db.String(30), default='default.jpg')
 
     followers_qty = db.Column(db.Integer, default=0)
-
 
     posts = db.relationship('Post', backref='user', cascade="all, delete", lazy='dynamic')
     likes = db.relationship('Like', backref='user', cascade="all, delete", lazy='dynamic')
@@ -52,7 +48,7 @@ class User(UserMixin, db.Model):
 
     def all_users():
         return User.query.all()
-    
+
     def get_user_by_username(username):
         return User.query.filter_by(username=username).first()
 

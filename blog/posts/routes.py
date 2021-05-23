@@ -8,20 +8,23 @@ from flask_login import login_required, current_user
 from blog.users.routes import all_followers_of_user
 
 
-all_users = User.all_users()
+all_users = User.all_users()  # list of all FlaskBlog users
 
-user_ids = [user.id for user in all_users]
-flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}
+user_ids = [user.id for user in all_users]  # list of user ids all FlaskBlog users
+flwrs_dict = {usr: all_followers_of_user(usr) for usr in user_ids}  # dict {user_id: [followers of user_id]}
+
 
 def get_user_by_post_id(id):
+    # returns the "host" of a post
     return db.session.query(User).select_from(User).join(Post).filter(User.id == Post.post_author_id).first()
 
 
 @app.route('/users/<username>/wall', methods=['POST', 'GET'])
 @login_required
 def user(username):
-    post_host = User.query.filter_by(username=username).first()
-    all_users = User.all_users()
+    # user wall view function
+    post_host = User.query.filter_by(username=username).first()  # wall host
+    all_users = User.all_users()  # list of all FlaskBlog users
 
     d = {}
     user_ids = []   # list of all user IDs
@@ -33,25 +36,22 @@ def user(username):
 
     if request.method == 'POST':
         new_post_post_author_id = post_host.id
-        new_post_post_author_username = post_host.username
         new_post_post_title = request.form['post_title']
         new_post_post_content = request.form['post_content']
         new_post_date_added = datetime.datetime.utcnow()
 
-        new_post = Post(post_author_id = new_post_post_author_id,
-                        post_author_username = post_host.username,
+        new_post = Post(post_author_id=new_post_post_author_id,
+                        post_author_username=post_host.username,
                         post_title=new_post_post_title,
-                        post_content = new_post_post_content,
-                        post_date_added = new_post_date_added)
+                        post_content=new_post_post_content,
+                        post_date_added=new_post_date_added)
 
         db.session.add(new_post)
         db.session.commit()
-        return redirect(url_for('user', username=username))
+        return redirect(url_for('user', username=username))  # redirect to the user wall page
 
-    all_posts = Post.all_posts_by_author(post_host.id)
-    
-    all_followers = all_followers_of_user(post_host.id)
-    print(all_followers)
+    all_posts = Post.all_posts_by_author(post_host.id)  # all posts of the wall host user
+    all_followers = all_followers_of_user(post_host.id)  # all followers of the wall host user
 
     return render_template('user.html', post_host=post_host, 
                                         all_posts=all_posts,
@@ -111,27 +111,31 @@ def delete_post(id):
 @app.route('/posts/postid<int:id>/pushlike')
 @login_required
 def like_post(id):
+    #  put / remove like on a post
+    post_to_be_liked = Post.get_post_by_id(id)  # Post object which is intended to be liked
 
-    post_to_be_liked = Post.get_post_by_id(id)
+    # list of users who already liked the post:
+    # users_already_liked_post = \
+    #         db.session.query(User).select_from(User).join(Like).filter(Like.liked_post_id == id).all()
+    users_already_liked_post = Post.who_liked_the_post(id)
 
-    users_already_liked_post = \
-            db.session.query(User).select_from(User).join(Like).filter(Like.liked_post_id == id).all()
-
+    #  if current not yet liked the post, create new like instance
     if current_user not in users_already_liked_post:
-        new_like = Like(like_author_id = current_user.id,
-                        liked_post_id = id)
-        post_to_be_liked.likes_increment()                
+        new_like = Like(like_author_id=current_user.id,
+                        liked_post_id=id)
+        post_to_be_liked.likes_increment()  # call of likes increment method
         db.session.add(new_like)
         flash('Like posted :)', 'success')
         app.logger.info('Like posted')
 
-
+    # if current user already liked the post, remove that like:
     else:
+        # query the like to delete: select by bost id & user id
         like_to_delete = Like.query.filter(Like.like_author_id == current_user.id, Like.liked_post_id == id).first()
-        post_to_be_liked.likes_decrement()                
+        post_to_be_liked.likes_decrement() # call of likes decrement method
         db.session.delete(like_to_delete)
         flash('Like deleted :(', 'danger')
         app.logger.info('Like removed')
     db.session.commit()
 
-    return redirect(request.referrer)
+    return redirect(request.referrer)  # redirect to the initial page

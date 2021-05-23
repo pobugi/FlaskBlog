@@ -12,7 +12,6 @@
                 <th>#</th>
                 <th>Userpic</th>
                 <th>Username</th>
-                <th>Follow</th>
                 <th>Is online</th>
                 <th>Followers</th>
                 <th>Posts</th>
@@ -28,11 +27,6 @@
                     </a>
                 </td>
                 <td><a href="{{ url_for('user', username=user.username) }}">{{ user.username }}'s wall</a></td>
-                {% if current_user in flwrs_dict[user.id] %}
-                    <td><a href="{{ url_for('follow_user', username=user.username) }}">Unfollow</a></td> 
-                {% else %}
-                    <td><a href="{{ url_for('follow_user', username=user.username) }}">Follow</a></td>
-                {% endif %}
                 {% if user == current_user %}
                     <td style="color: Yellow">Online</td>
                 {% else %}

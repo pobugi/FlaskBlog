@@ -1,4 +1,3 @@
-from blog.config import Config
 from blog import app
 from flask import render_template
 
